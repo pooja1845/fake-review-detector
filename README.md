@@ -1,15 +1,14 @@
-# 🛒 Flipkart Fake Review Detector
+# 🛒 Flipkart Fake Review Detector API
 
-An interactive web application and API that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and content heuristics. 
+A Python FastAPI application that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and heuristics. Developed for the **Flipkart Grid 8.0 — Software Track**.
 
 ---
 
 ## 🌟 Features
 
-- **Single Review Analyzer**: Evaluate individual reviews for red flags (ALL-CAPS, punctuation abuse, bot disclaimer language, generic promotional phrasing, etc.) and calculate a weighted authenticity score (0-100%).
-- **Bulk Product-Level Trust Rating**: Submit multiple reviews for a product to calculate an overall trust grade (A to F) and trust score.
-- **Pattern Diagnostics Breakdown**: A beautiful horizontal bar visualization showing exact score breakdown across all heuristic criteria (e.g. capitalized text ratio, exclamation rates, word repetition, sponsor disclaimer checks).
-- **Glassmorphic Interactive UI**: A dark-mode single-page frontend served directly from the FastAPI root `/` endpoint.
+- **Single Review Analyzer (`POST /analyze/review`)**: Evaluate individual reviews for red flags (ALL-CAPS, punctuation abuse, bot disclaimer language, generic promotional phrasing, etc.) and calculate a weighted authenticity score (0-100%).
+- **Bulk Product-Level Trust Rating (`POST /analyze/product`)**: Submit multiple reviews for a product to calculate an overall trust grade (A to F) and trust score.
+- **Pattern Diagnostics Breakdown**: Returns detailed scoring breakdown across all heuristic criteria (e.g. capitalized text ratio, exclamation rates, word repetition, sponsor disclaimer checks).
 
 ---
 
@@ -17,7 +16,6 @@ An interactive web application and API that evaluates the authenticity of e-comm
 
 - **Backend**: Python 3.12+, [FastAPI](https://fastapi.tiangolo.com/), [Uvicorn](https://www.uvicorn.org/)
 - **NLP / Text Analysis**: [NLTK](https://www.nltk.org/), [TextBlob](https://textblob.readthedocs.io/)
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Glassmorphism styling), Vanilla JavaScript
 
 ---
 
@@ -35,9 +33,8 @@ Start the Uvicorn local server. Using the `-X utf8` flag ensures Unicode support
 python -X utf8 -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 3. Open in Browser
-Visit the following URLs:
-- **Interactive UI Dashboard**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+### 3. Open Swagger API Docs
+To test the API endpoints interactively, visit:
 - **Swagger API Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
@@ -45,6 +42,6 @@ Visit the following URLs:
 ## 📂 Project Structure
 
 - `detector.py`: Core logic for NLP pattern evaluations, heuristic scoring weights, and rating nudge calculators.
-- `main.py`: FastAPI server setting up analysis routes (`/analyze/review`, `/analyze/product`) and rendering the HTML/CSS/JS frontend dashboard.
+- `main.py`: FastAPI server setting up analysis routes (`/analyze/review`, `/analyze/product`) and system routes (`/health`, `/`).
 - `test_api.py`: Offline script to verify scoring accuracy against sample genuine/fake reviews.
 - `requirements.txt`: Python package requirements.
