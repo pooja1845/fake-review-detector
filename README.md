@@ -3,6 +3,8 @@
 A production-ready REST API that detects fake, bot-generated, and incentivised product reviews using NLP + heuristic scoring — built as a solution to a real Flipkart business problem.
 
 ---
+##  Open Swagger UI
+Visit :  http://localhost:8000/docs
 
 ## 🎯 Problem Statement
 
@@ -183,7 +185,3 @@ fake-review-detector/
 
 ---
 
-## 👤 Author
-
-Built for **Flipkart Grid 8.0** — Software Engineering Track  
-[Your Name] | [Your College] | [GitHub Profile]
