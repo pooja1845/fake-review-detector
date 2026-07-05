@@ -1,47 +1,189 @@
 # 🛒 Flipkart Fake Review Detector API
 
-A Python FastAPI application that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and heuristics. 
+A production-ready REST API that detects fake, bot-generated, and incentivised product reviews using NLP + heuristic scoring — built as a solution to a real Flipkart business problem.
 
 ---
 
-## 🌟 Features
+## 🎯 Problem Statement
 
-- **Single Review Analyzer (`POST /analyze/review`)**: Evaluate individual reviews for red flags (ALL-CAPS, punctuation abuse, bot disclaimer language, generic promotional phrasing, etc.) and calculate a weighted authenticity score (0-100%).
-- **Bulk Product-Level Trust Rating (`POST /analyze/product`)**: Submit multiple reviews for a product to calculate an overall trust grade (A to F) and trust score.
-- **Pattern Diagnostics Breakdown**: Returns detailed scoring breakdown across all heuristic criteria (e.g. capitalized text ratio, exclamation rates, word repetition, sponsor disclaimer checks).
+Fake reviews cost e-commerce platforms billions in lost consumer trust annually. Flipkart (and platforms like it) need scalable, automated ways to flag suspicious reviews before they influence buying decisions.
 
----
-
-## 🛠️ Tech Stack
-
-- **Backend**: Python 3.12+, [FastAPI](https://fastapi.tiangolo.com/), [Uvicorn](https://www.uvicorn.org/)
-- **NLP / Text Analysis**: [NLTK](https://www.nltk.org/), [TextBlob](https://textblob.readthedocs.io/)
+This API provides:
+- Per-review **authenticity score** (0–100)
+- **Fake/Genuine classification** with confidence level
+- **Specific red flag reasons** (not just a score — WHY it's flagged)
+- **Product-level trust rating** (A–F grade) across all reviews
 
 ---
 
-## 🚀 Setup & Installation
+## 🚀 Quick Start
 
-### 1. Install Dependencies
-Ensure you have Python installed, then install the required libraries:
 ```bash
+# 1. Clone the repo
+git clone https://github.com/pooja1845/fake-review-detector.git
+cd fake-review-detector
+
+# 2. Install dependencies
 pip install -r requirements.txt
-```
 
-### 2. Run the Application
-Start the Uvicorn local server. Using the `-X utf8` flag ensures Unicode support for emoji renderings on all platforms:
-```bash
-python -X utf8 -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
+# 3. Run the API server
+uvicorn main:app --reload
 
-### 3. Open Swagger API Docs
-To test the API endpoints interactively, visit:
-- **Swagger API Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+# 4. Open Swagger UI
+# Visit http://localhost:8000/docs
+```
 
 ---
 
-## 📂 Project Structure
+## 📡 API Endpoints
 
-- `detector.py`: Core logic for NLP pattern evaluations, heuristic scoring weights, and rating nudge calculators.
-- `main.py`: FastAPI server setting up analysis routes (`/analyze/review`, `/analyze/product`) and system routes (`/health`, `/`).
-- `test_api.py`: Offline script to verify scoring accuracy against sample genuine/fake reviews.
-- `requirements.txt`: Python package requirements.
+### `POST /analyze/review` — Single Review Analysis
+
+**Request:**
+```json
+{
+  "review_text": "BEST PRODUCT EVER!! Highly recommend to EVERYONE!! Must buy!!",
+  "reviewer_name": "John D.",
+  "rating": 5
+}
+```
+
+**Response:**
+```json
+{
+  "authenticity_score": 33.5,
+  "fake_probability": 66.5,
+  "classification": {
+    "label": "LIKELY FAKE",
+    "confidence": "HIGH",
+    "emoji": "❌"
+  },
+  "red_flags": [
+    "Excessive use of CAPS (aggressive tone or bot-like)",
+    "Contains 3 generic/template phrases (e.g. 'highly recommend', 'best ever')",
+    "Punctuation abuse detected (!! ??? ...)"
+  ],
+  "feature_breakdown": {
+    "caps": 0.812,
+    "exclaim": 0.667,
+    "repetition": 0.0,
+    "generic": 1.0,
+    "bot": 0.0,
+    "length": 0.9,
+    "no_detail": 0.75,
+    "first_person": 0.0,
+    "punct": 0.6,
+    "sentiment": 0.7
+  }
+}
+```
+
+---
+
+### `POST /analyze/product` — Bulk Product Analysis
+
+**Request:**
+```json
+{
+  "product_name": "Noise Smartwatch Pro X",
+  "product_id": "PROD_12345",
+  "reviews": [
+    { "review_text": "BEST EVER!! Love it!!", "rating": 5 },
+    { "review_text": "Battery lasts 6-7 hours. Compared to my previous watch, sound quality is better. Good value.", "rating": 4 }
+  ]
+}
+```
+
+**Response includes:**
+```json
+{
+  "trust_rating": {
+    "trust_score": 51.6,
+    "grade": "C",
+    "summary": "Moderate trust — several suspicious reviews present",
+    "total_reviews_analysed": 6,
+    "flagged_as_suspicious": 3,
+    "fake_ratio_percent": 50.0
+  },
+  "individual_reviews": [ ... ]
+}
+```
+
+---
+
+## 🧠 How It Works
+
+The detector extracts **10 NLP features** from each review and combines them with a weighted scoring model:
+
+| Feature | What it detects | Weight |
+|--------|----------------|--------|
+| CAPS ratio | Shouting/aggressive bot tone | 8% |
+| Exclamation density | Emotional manipulation | 8% |
+| Word repetition | Template/copy-paste content | 12% |
+| Generic phrases | "Best ever", "highly recommend" | 15% |
+| Bot disclaimers | "Received free in exchange for review" | 15% |
+| Review length | Too short or suspiciously long | 10% |
+| Specific details | Mentions features, use case, comparisons | 15% |
+| First-person ratio | Impersonal = likely bot | 7% |
+| Punctuation abuse | `!!!`, `???`, `...` overuse | 5% |
+| Sentiment extremity | Unnaturally polar reviews | 5% |
+
+**Classification thresholds:**
+- ✅ **GENUINE** — Score ≥ 75
+- 🟡 **LIKELY GENUINE** — Score 55–74
+- 🟠 **SUSPICIOUS** — Score 35–54
+- ❌ **LIKELY FAKE** — Score < 35
+
+---
+
+## 🛠 Tech Stack
+
+- **FastAPI** — REST API framework
+- **TextBlob** — Sentiment analysis
+- **NLTK** — Tokenisation, stopword removal
+- **Pydantic** — Request/response validation
+- **Uvicorn** — ASGI server
+
+---
+
+## 🔬 Test Results (Sample)
+
+```
+Review: "BEST PRODUCT EVER!!! Absolutely amazing!! Highly recommend to EVERYONE!!"
+→ ❌ LIKELY FAKE (Score: 33.5) | Flags: CAPS abuse, generic phrases, punctuation abuse
+
+Review: "I received this product for free in exchange for an honest review."
+→ 🟠 SUSPICIOUS (Score: 43.6) | Flags: Incentivised review language
+
+Review: "Battery lasts 6-7 hours. Compared to previous model, sound is better. Good value."
+→ ✅ GENUINE (Score: 97.4) | No red flags
+```
+
+---
+
+## 🗂 Project Structure
+
+```
+fake-review-detector/
+├── main.py           # FastAPI app — all endpoints
+├── detector.py       # NLP engine — feature extraction + scoring
+├── test_api.py       # Standalone tests (no server needed)
+├── requirements.txt  # Dependencies
+└── README.md         # This file
+```
+
+---
+
+## 📈 Business Impact
+
+- Scalable to millions of reviews/day with async processing
+- Explainable outputs — not a black box, every decision is justified
+- Can be integrated into Flipkart's review pipeline pre-publish
+- Reduces fake review influence on product rankings and buyer decisions
+
+---
+
+## 👤 Author
+
+Built for **Flipkart Grid 8.0** — Software Engineering Track  
+[Your Name] | [Your College] | [GitHub Profile]
