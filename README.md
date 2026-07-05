@@ -1,6 +1,6 @@
 # 🛒 Flipkart Fake Review Detector
 
-An interactive web application and API that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and content heuristics. Developed for the **Flipkart Grid 8.0 — Software Track**.
+An interactive web application and API that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and content heuristics. 
 
 ---
 
