@@ -1,6 +1,6 @@
 # 🛒 Flipkart Fake Review Detector API
 
-A Python FastAPI application that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and heuristics. Developed for the **Flipkart Grid 8.0 — Software Track**.
+A Python FastAPI application that evaluates the authenticity of e-commerce reviews using Natural Language Processing (NLP) and heuristics. 
 
 ---
 
